@@ -26,5 +26,5 @@ botao.onclick = function(){
 
 	document.myform.img5.height = alt5;
 	document.myform.img5.width = larg;
-	document.myform.img5.value = img5;
+	document.myform.img5.value = img5;	
 }
