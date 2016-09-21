@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Gomoku</title>
+<script language="JavaScript">
+var i, j, k, best_i, best_j, MoveVal, Start, StartN, Blink, Move, MaxMove, IsOver, size=15, size2=225;
+IsPlayer = new Array(2);
+IsPlayer[0]=1;
+IsPlayer[1]=0;
+StartN=0;
+Fld = new Array(size);
+for (i=0; i < size; i++)
+{ Fld[i]=new Array(size);
+}
+History = new Array(size2);
+for (i=0; i < size2; i++)
+{ History[i] = new Array(2);
+}
+Pic= new Array(3);
+Pic[0] = new Image(); Pic[0].src = "ttt0.gif";
+Pic[1] = new Image(); Pic[1].src = "ttt1.gif";
+Pic[2] = new Image(); Pic[2].src = "ttt2.gif";
+function Init()
+{ var ii, jj;
+  MoveVal=0;
+  IsOver=false;
+  Blink=0;
+  Start=StartN;
+  Move=0;
+  MaxMove=0;
+  for (ii=0; ii < size; ii++)
+  { for (jj=0; jj < size; jj++)
+      Fld[ii][jj]=0; 
+  }
+  RefreshScreen();
+  window.document.OptionsForm.Moves.value=" 0 ";
+}
+
+function SetOption(nn, mm)
+{ if (nn<2) IsPlayer[nn]=mm;
+  else 
+  { StartN=1-mm;
+    Init();
+  }
+
+}
+function EvalMove(nn,mm,cc)
+{ var ii, ll0=0, rr0=0, hh0=0, vv0=0, ll1=0, rr1=0, hh1=0, vv1=0;
+  ii=1;
+  while ((nn-ii>=0)&&(Fld[nn-ii][mm]==cc)&&(ii<5)) ii++;
+  vv0+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(Fld[nn+ii][mm]==cc)&&(ii<5)) ii++;
+  vv1+=(ii-1);
+  if (vv0+vv1>=4) return(2000);
+  ii=1;
+  while ((mm-ii>=0)&&(Fld[nn][mm-ii]==cc)&&(ii<5)) ii++;
+  hh0+=(ii-1);
+  ii=1;
+  while ((mm+ii<size)&&(Fld[nn][mm+ii]==cc)&&(ii<5)) ii++;
+  hh1+=(ii-1);
+  if (hh0+hh1>=4) return(2000);
+  ii=1;
+  while ((nn-ii>=0)&&(mm-ii>=0)&&(Fld[nn-ii][mm-ii]==cc)&&(ii<5)) ii++;
+  ll0+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(mm+ii<size)&&(Fld[nn+ii][mm+ii]==cc)&&(ii<5)) ii++;
+  ll1+=(ii-1);
+  if (ll0+ll1>=4) return(2000);
+  ii=1;
+  while ((nn-ii>=0)&&(mm+ii<size)&&(Fld[nn-ii][mm+ii]==cc)&&(ii<5)) ii++;
+  rr0+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(mm-ii>=0)&&(Fld[nn+ii][mm-ii]==cc)&&(ii<5)) ii++;
+  rr1+=(ii-1);
+  if (rr0+rr1>=4) return(2000);
+  var ll2=0, rr2=0, hh2=0, vv2=0, ll3=0, rr3=0, hh3=0, vv3=0;
+  ii=1;
+  while ((nn-ii>=0)&&(Fld[nn-ii][mm]!=-cc)&&(ii<5)) ii++;
+  vv2+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(Fld[nn+ii][mm]!=-cc)&&(ii<5)) ii++;
+  vv3+=(ii-1);
+  ii=1;
+  while ((mm-ii>=0)&&(Fld[nn][mm-ii]!=-cc)&&(ii<5)) ii++;
+  hh2+=(ii-1);
+  ii=1;
+  while ((mm+ii<size)&&(Fld[nn][mm+ii]!=-cc)&&(ii<5)) ii++;
+  hh3+=(ii-1);
+  ii=1;
+  while ((nn-ii>=0)&&(mm-ii>=0)&&(Fld[nn-ii][mm-ii]!=-cc)&&(ii<5)) ii++;
+  ll2+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(mm+ii<size)&&(Fld[nn+ii][mm+ii]!=-cc)&&(ii<5)) ii++;
+  ll3+=(ii-1);
+  ii=1;
+  while ((nn-ii>=0)&&(mm+ii<size)&&(Fld[nn-ii][mm+ii]!=-cc)&&(ii<5)) ii++;
+  rr2+=(ii-1);
+  ii=1;
+  while ((nn+ii<size)&&(mm-ii>=0)&&(Fld[nn+ii][mm-ii]!=-cc)&&(ii<5)) ii++;
+  rr3+=(ii-1);
+  ii=0;
+  if (vv0+vv1==3)
+  { if (vv2>vv0) ii++; 
+    if (vv3>vv1) ii++;
+  }
+  if (hh0+hh1==3)
+  { if (hh2>hh0) ii++;
+    if (hh3>hh1) ii++;
+  }
+  if (ll0+ll1==3)
+  { if (ll2>ll0) ii++;
+    if (ll3>ll1) ii++;
+  }
+  if (rr0+rr1==3)
+  { if (rr2>rr0) ii++;
+    if (rr3>rr1) ii++;
+  }
+  if (ii>=2) return(1000+ii);
+  if ((vv0+vv1>=1)&&(vv2>vv0)&&(vv3>vv1)&&(vv2+vv3>=4)) ii+=20*(vv0+vv1);
+  if ((hh0+hh1>=1)&&(hh2>hh0)&&(hh3>hh1)&&(hh2+hh3>=4)) ii+=20*(hh0+hh1);
+  if ((ll0+ll1>=1)&&(ll2>ll0)&&(ll3>ll1)&&(ll2+ll3>=4)) ii+=20*(ll0+ll1);
+  if ((rr0+rr1>=1)&&(rr2>rr0)&&(rr3>rr1)&&(rr2+rr3>=4)) ii+=20*(rr0+rr1);
+  if (vv0+vv3>=4) ii+=vv0+10;
+  if (vv1+vv2>=4) ii+=vv1+10;
+  if (hh0+hh3>=4) ii+=hh0+10;
+  if (hh1+hh2>=4) ii+=hh1+10;
+  if (ll0+ll3>=4) ii+=ll0+10;
+  if (ll1+ll2>=4) ii+=ll1+10;
+  if (rr0+rr3>=4) ii+=rr0+10;
+  if (rr1+rr2>=4) ii+=rr1+10;
+  ii+=(100-(nn-7)*(nn-7)-(mm-7)*(mm-7)+Math.random()*10)/100;
+  return(ii);
+}
+function MakeMove(nn, mm, bb)
+{ var dd, ii, jj, vv=0, cc=2*((Move+Start+bb)%2)-1;
+  if (Fld[nn][mm]!=0) return(-1);
+  for (ii=nn-2; ii<=nn+2; ii++)
+  { for (jj=mm-2; jj<mm+2; jj++)
+    { if ((ii>=0)&&(ii<size)&&(jj>=0)&&(jj<size)&&(Fld[ii][jj]!=0)) vv++;
+    }
+  }
+  if (vv>0) MoveVal=EvalMove(nn,mm,cc);
+  else MoveVal=100-(nn-7)*(nn-7)-(mm-7)*(mm-7)+Math.random()*10;
+  if (bb<2) return(MoveVal);
+  Fld[nn][mm]=2*((Move+Start)%2)-1;
+  if (History[Move][0]!=nn)
+  { History[Move][0]=nn;
+    MaxMove=Move+1;
+  }
+  if (History[Move][1]!=mm)
+  { History[Move][1]=mm;
+    MaxMove=Move+1;
+  }
+  Move++;
+  if (MaxMove<Move) MaxMove=Move;
+  return(MoveVal);
+}
+function Clicked(nn, mm)
+{ if (IsPlayer[(Move+Start)%2])
+  { if (MakeMove(nn, mm, 2)<0);
+    else RefreshPic(nn,mm,MoveVal);
+  }
+}
+function RefreshPic(ii, jj, vv)
+{ if (Fld[ii][jj]==-1) window.document.images[size*ii+jj].src = Pic[1].src;
+  if (Fld[ii][jj]==0) window.document.images[size*ii+jj].src = Pic[0].src;
+  if (Fld[ii][jj]==1) window.document.images[size*ii+jj].src = Pic[2].src;
+  if (Move<10)
+    window.document.OptionsForm.Moves.value=" "+Move+" ";
+  else
+    window.document.OptionsForm.Moves.value=Move;
+  window.document.OptionsForm.Moves.blur();
+  if (vv>=2000)
+  { IsOver=true;
+    if ((Move+Start)%2==0)
+      alert("O venceu !");
+    else
+      alert("X venceu !");
+  }
+  else
+  { if (Move==size2)
+    { IsOver=true;
+      alert("Empate !");
+    }
+  }
+}
+function RefreshScreen()
+{ var ii, jj;
+  for (ii=0; ii < size; ii++)
+  { for (jj=0; jj < size; jj++)
+    { if (Fld[ii][jj]==-1) window.document.images[size*ii+jj].src = Pic[1].src;
+      if (Fld[ii][jj]==0) window.document.images[size*ii+jj].src = Pic[0].src;
+      if (Fld[ii][jj]==1) window.document.images[size*ii+jj].src = Pic[2].src;
+    }
+  }  
+}
+
+function Help()
+{ alert("O Gomoku, também conhecido como Gobang, é um jogo de tabuleiro estratégico tradicionalmente jogado com peças de Go (peças negras e brancas) em um tabuleiro de Go ligeiramente modificado (15x15 interseções). No entanto, ao contrario deste, uma vez que as peças são colocadas não podem ser movidas ou retiradas do tabuleiro. No inicio do jogo, as negras começam, e os jogadores alternam na colocação de uma pedra da sua cor em uma interseção vazia. O vencedor é o primeiro jogador a obter uma linha ininterrupta de cinco pedras na horizontal, vertical ou diagonal.");
+}
+</script>
+</head>
+<body bgcolor=#000000 text=#000000 ">
+	<div align=center>
+
+	<div class="container"> 
+
+	<h1><font color="#ffffff">GOMOKU GAME!</h1></font>
+			<p><font color="#ffffff">
+				O Gomoku, também conhecido como Gobang, é um jogo de tabuleiro estratégico tradicionalmente jogado com peças de Go (peças negras e brancas) em um tabuleiro de Go ligeiramente modificado (15x15 interseções). No entanto, ao contrario deste, uma vez que as peças são colocadas não podem ser movidas ou retiradas do tabuleiro. No inicio do jogo, as negras começam, e os jogadores alternam na colocação de uma pedra da sua cor em uma interseção vazia. O vencedor é o primeiro jogador a obter uma linha ininterrupta de cinco pedras na horizontal, vertical ou diagonal.
+			</p></font>
+			</div>
+
+
+	<form name="OptionsForm">
+	<table noborder>
+		<tr>
+			<td><script language="JavaScript">
+				document.open();
+				document.writeln("<table border cellpadding=0 cellspacing=1 bgcolor=#808080>");
+				for (i=0; i < size; i++)
+					{ document.writeln("<tr>");
+  					for (j=0; j < size; j++)
+    					document.write("<td><a href=\"javascript:Clicked("+i+","+j+")\"><IMG src=\"ttt0.gif\" width=20 border=0></a></td>");
+  						document.writeln("</tr>");
+				}
+				document.writeln("</table>");
+				document.close();
+			</script>
+			</td>
+			<td>&nbsp;</td><td>&nbsp;</td>
+			<td>
+				<table border=3 cellpadding=8 cellspacing=3 bgcolor=#ffa040>
+					<tr><td>
+						<table border cellpadding=3 cellspacing=1 width=100% bgcolor=#8080FF>
+						<tr><td><input type=radio name="X" checked value="Player" onClick="javascript:SetOption(0,1)"> <b>Jogador - X</b></td></tr>
+						</table>      
+					</td></tr>
+					<tr><td>
+				<table border cellpadding=3 cellspacing=1 width=100% bgcolor=#FF3870>
+					<tr><td><input type=radio name="O" value="Player" onClick="javascript:SetOption(1,1)"> <b>Jogador - O</b></td></tr>
+				</table>
+			</td></tr>       
+			</td></tr>
+		<tr><td>
+			<table noborder width=100% cellpadding=0 cellspacing=0><tr>
+				<td align=center><input type=button value="Novo" width=75 style="width:72" onClick="javascript:Init()"></td>
+				<td align=center><input type=button value="Ajuda" width=75 style="width:72" onClick="javascript:Help()"></td>
+		</tr></table>
+		</td></tr> 
+		<tr><td>
+
+<table noborder width=100% cellpadding=0 cellspacing=0><tr>
+	<td align=center><input type=button value="&nbsp;&nbsp;&nbsp;&nbsp;" style="width:34;background-color:#FFFFFF;font-weight:bold" disabled name="Moves"></td>
+	</tr>
+		</table>
+		</td></tr>
+		</table>
+	</td>
+	</tr>
+</table>
+</form>
+</div>
+<script language="JavaScript">
+  Init();
+</script>
+</body>
+</html>
